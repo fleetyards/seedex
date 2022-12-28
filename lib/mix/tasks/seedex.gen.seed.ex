@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Seedex.Gen.Seed do
     Mix.Task.run("app.start", [])
 
     repo = Mix.Ecto.parse_repo(opts) |> hd
-    seeds_path = Keyword.get(opts, :seeds_path, Mix.Tasks.Seedex.Seed.default_path())
+    seeds_path = Keyword.get(opts, :seeds_path, Mix.Tasks.Seedex.Seed.default_path(repo))
     env = Keyword.get(opts, :env)
 
     path = if env do

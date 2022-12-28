@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Seedex.Seed do
 
   @doc false
   def run(args) do
-    {opts, _, _} = OptionParser.parse(args, switches: [env: :string, seeds_path: :string, debug: :boolean, quiet: :boolean])
+    {opts, _, _} = OptionParser.parse(args, switches: [env: :string, seeds_path: :string, debug: :boolean, quiet: :boolean, repo: :string])
 
     if opts[:debug] do
       Logger.configure(level: :debug)
@@ -34,7 +34,8 @@ defmodule Mix.Tasks.Seedex.Seed do
 
     Mix.Task.run("app.start", [])
 
-    seeds_path = Keyword.get(opts, :seeds_path, default_path())
+    [ repo | _ ] = Mix.Ecto.parse_repo(opts)
+    seeds_path = Keyword.get(opts, :seeds_path, default_path(repo))
     env = Keyword.get(opts, :env, to_string(Mix.env))
 
     unless File.dir?(seeds_path) do
@@ -65,5 +66,14 @@ defmodule Mix.Tasks.Seedex.Seed do
 
   def default_path do
     Application.get_env(:seedex, :seeds_path, "priv/repo/seeds")
+  end
+
+  def default_path(repo) do
+    Application.get_env(:seedex, :seeds_path, repo_seed_path(repo))
+  end
+
+  def repo_seed_path(repo) do
+    Mix.EctoSQL.source_repo_priv(repo)
+    |> Path.join("seeds")
   end
 end
